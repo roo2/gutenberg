@@ -263,7 +263,7 @@ function LinkControl( {
 									url: 'loading...',
 								} );
 								const newPage = await apiFetch( {
-									path: `/wp/v2/posts`,
+									path: `/wp/v2/pages`,
 									data: {
 										title: inputValue,
 										content: '',
