@@ -27,6 +27,7 @@ import { focus } from '@wordpress/dom';
 import LinkControlSettingsDrawer from './settings-drawer';
 import LinkControlSearchItem from './search-item';
 import LinkControlSearchInput from './search-input';
+import LinkControlSearchCreate from './search-create-button';
 
 /**
  * Default properties associated with a link control value.
@@ -250,7 +251,14 @@ function LinkControl( {
 							searchTerm={ inputValue }
 						/>
 					) ) }
+
+					{ ! isInitialSuggestions && (
+						<LinkControlSearchCreate
+							searchTerm={ inputValue }
+						/>
+					) }
 				</div>
+
 			</div>
 		);
 	};
