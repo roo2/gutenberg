@@ -225,7 +225,8 @@ function LinkControl( {
 			'is-loading': isLoading,
 		} );
 
-		const manualLinkEntryTypes = [ 'url', 'mailto', 'tel', 'internal' ];
+		const directLinkEntryTypes = [ 'url', 'mailto', 'tel', 'internal' ];
+		const isSingleDirectEntryResult = suggestions.length === 1 && directLinkEntryTypes.includes( suggestions[ 0 ].type.toLowerCase() );
 		const searchResultsLabelId = isInitialSuggestions ? `block-editor-link-control-search-results-label-${ instanceId }` : undefined;
 		const labelText = isInitialSuggestions ? __( 'Recently updated' ) : sprintf( __( 'Search results for %s' ), inputValue );
 		// According to guidelines aria-label should be added if the label
@@ -253,12 +254,12 @@ function LinkControl( {
 								onChange( { ...value, ...suggestion } );
 							} }
 							isSelected={ index === selectedSuggestion }
-							isURL={ manualLinkEntryTypes.includes( suggestion.type.toLowerCase() ) }
+							isURL={ directLinkEntryTypes.includes( suggestion.type.toLowerCase() ) }
 							searchTerm={ inputValue }
 						/>
 					) ) }
 
-					{ showCreatePages && createEmptyPage && ! isInitialSuggestions && (
+					{ showCreatePages && createEmptyPage && ! isInitialSuggestions && ! isSingleDirectEntryResult && (
 						<LinkControlSearchCreate
 							searchTerm={ inputValue }
 							onClick={ async () => {
