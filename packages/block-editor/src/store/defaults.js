@@ -154,7 +154,6 @@ export const SETTINGS_DEFAULTS = {
 	showInserterHelpPanel: true,
 	resizableStyleSheets: [
 		'block-library',
-		'editor-style',
 		'block-editor',
 	],
 	__experimentalCanUserUseUnfilteredHTML: false,
