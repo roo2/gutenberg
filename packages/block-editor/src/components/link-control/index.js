@@ -94,6 +94,7 @@ function LinkControl( {
 	onChange = noop,
 	showInitialSuggestions,
 	showCreatePages,
+	createEmptyPage,
 } ) {
 	const wrapperNode = useRef();
 	const instanceId = useInstanceId( LinkControl );
@@ -257,7 +258,7 @@ function LinkControl( {
 						/>
 					) ) }
 
-					{ showCreatePages && ! isInitialSuggestions && (
+					{ showCreatePages && createEmptyPage && ! isInitialSuggestions && (
 						<LinkControlSearchCreate
 							searchTerm={ inputValue }
 							onClick={ async () => {
@@ -266,15 +267,7 @@ function LinkControl( {
 									title: 'Loading link...',
 									url: 'loading...',
 								} );
-								const newPage = await apiFetch( {
-									path: `/wp/v2/pages`,
-									data: {
-										title: inputValue,
-										content: '',
-										status: 'publish', // TODO: use publish?
-									},
-									method: 'POST',
-								} );
+								const newPage = await createEmptyPage( inputValue );
 								// TODO: handle error from API
 								onChange( {
 									id: newPage.id,
