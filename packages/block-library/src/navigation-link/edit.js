@@ -49,6 +49,7 @@ function NavigationLinkEdit( {
 	setAttributes,
 	showSubmenuIcon,
 	insertLinkBlock,
+	savePage,
 } ) {
 	const { label, opensInNewTab, title, url, nofollow, description } = attributes;
 	const link = {
@@ -176,14 +177,10 @@ function NavigationLinkEdit( {
 								showInitialSuggestions={ true }
 								showCreatePages={ true }
 								createEmptyPage={ ( pageTitle ) =>
-									apiFetch( {
-										path: `/wp/v2/pages`,
-										data: {
-											title: pageTitle,
-											content: '',
-											status: 'publish', // TODO: use publish?
-										},
-										method: 'POST',
+									savePage( {
+										title: pageTitle,
+										content: '',
+										status: 'publish', // TODO: use publish?
 									} )
 								}
 								onChange={ ( {
@@ -265,6 +262,10 @@ export default compose( [
 					insertionPoint,
 					clientId,
 				);
+			},
+			savePage( page ) {
+				const { saveEntityRecord } = dispatch( 'core' );
+				return saveEntityRecord( 'postType', 'page', page );
 			},
 		};
 	} ),
