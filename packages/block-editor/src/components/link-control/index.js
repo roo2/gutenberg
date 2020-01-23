@@ -31,7 +31,7 @@ import LinkControlSettingsDrawer from './settings-drawer';
 import LinkControlSearchItem from './search-item';
 import LinkControlSearchInput from './search-input';
 import LinkControlSearchCreate from './search-create-button';
-
+const CREATE_TYPE = '__CREATE__';
 /**
  * Default properties associated with a link control value.
  *
@@ -191,7 +191,14 @@ function LinkControl( {
 		// If it's potentially a URL search then concat on a URL search suggestion
 		// just for good measure. That way once the actual results run out we always
 		// have a URL option to fallback on.
-		return couldBeURL && ! args.isInitialSuggestions ? results[ 0 ].concat( results[ 1 ] ) : results[ 0 ];
+		const rtn = couldBeURL && ! args.isInitialSuggestions ? results[ 0 ].concat( results[ 1 ] ) : results[ 0 ];
+
+		return rtn.concat( {
+			id: '-2',
+			title: '',
+			url: '',
+			type: CREATE_TYPE,
+		} );
 	};
 
 	/**
@@ -214,9 +221,9 @@ function LinkControl( {
 		const isInternal = startsWith( val, '#' );
 		const isTel = protocol.includes( 'tel' );
 
-		const handleManualEntry = isInternal || isMailto || isTel || isURL( val ) || ( val && val.includes( 'www.' ) );
+		const maybeURL = isInternal || isMailto || isTel || isURL( val ) || ( val && val.includes( 'www.' ) );
 
-		return ( handleManualEntry ) ? handleDirectEntry( val, args ) : handleEntitySearch( val, args );
+		return ( maybeURL ) ? handleDirectEntry( val, args ) : handleEntitySearch( val, args );
 	}, [ handleDirectEntry, fetchSearchSuggestions ] );
 
 	// Render Components
@@ -238,13 +245,44 @@ function LinkControl( {
 				{ labelText }
 			</span>
 		);
+		const showShowCreatePages = showCreatePages && createEmptyPage && ! isInitialSuggestions && ! isSingleDirectEntryResult;
 
 		return (
 			<div className="block-editor-link-control__search-results-wrapper">
 				{ isInitialSuggestions ? SearchResultsLabel : <VisuallyHidden>{ SearchResultsLabel }</VisuallyHidden> }
 
 				<div { ...suggestionsListProps } className={ resultsListClasses } aria-labelledby={ searchResultsLabelId }>
-					{ suggestions.map( ( suggestion, index ) => (
+					{ suggestions.map( ( suggestion, index ) => {
+						if ( showShowCreatePages && CREATE_TYPE === suggestion.type ) {
+							return (
+								<LinkControlSearchCreate
+									searchTerm={ inputValue }
+									onClick={ async () => {
+										setIsResolvingLink( true );
+										const newPage = await createEmptyPage( inputValue );
+										// TODO: handle error from API
+										setIsResolvingLink( false );
+										onChange( {
+											id: newPage.id,
+											title: newPage.title.raw, // TODO: use raw or rendered?
+											url: newPage.link,
+											type: newPage.type,
+										} );
+									} }
+									key={ `${ suggestion.id }-${ suggestion.type }` }
+									itemProps={ buildSuggestionItemProps( suggestion, index ) }
+									isSelected={ index === selectedSuggestion }
+								/>
+							);
+						}
+
+						// If we're not handling "Create" suggestions above then
+						// we don't want them in the main results so exit early
+						if ( CREATE_TYPE === suggestion.type ) {
+							return null;
+						}
+
+						return (
 						<LinkControlSearchItem
 							key={ `${ suggestion.id }-${ suggestion.type }` }
 							itemProps={ buildSuggestionItemProps( suggestion, index ) }
@@ -258,6 +296,8 @@ function LinkControl( {
 							searchTerm={ inputValue }
 						/>
 					) ) }
+						;
+					} ) }
 
 					{ showCreatePages && createEmptyPage && ! isInitialSuggestions && ! isSingleDirectEntryResult && (
 						<LinkControlSearchCreate
