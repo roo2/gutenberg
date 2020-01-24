@@ -411,12 +411,9 @@ describe( 'Creating Entities (eg: Posts, Pages)', () => {
 				} }
 				createEntity={ ( type, title ) => Promise.resolve( {
 					type,
+					title,
 					id: 123,
-					title: {
-						raw: title,
-						rendered: title,
-					},
-					link: '/?p=123',
+					url: '/?p=123',
 				} ) }
 			/> );
 		};
@@ -465,15 +462,7 @@ describe( 'Creating Entities (eg: Posts, Pages)', () => {
 				<LinkControl
 					showInitialSuggestions={ true } // should show even if we're not showing initial suggestions
 					showCreateEntity={ true }
-					createEntity={ ( type, title = '(no title)' ) => Promise.resolve( {
-						type,
-						id: 123,
-						title: {
-							raw: title,
-							rendered: title,
-						},
-						link: '/?p=123',
-					} ) }
+					createEntity={ jest.fn() }
 				/>, container
 			);
 		} );
