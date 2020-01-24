@@ -3,7 +3,7 @@
  */
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { LEFT,
 	RIGHT,
 	UP,
@@ -44,6 +44,7 @@ const LinkControlSearchInput = ( {
 	fetchSuggestions,
 	onReset,
 	showInitialSuggestions,
+	errorMsg,
 } ) => {
 	const [ selectedSuggestion, setSelectedSuggestion ] = useState();
 
@@ -63,6 +64,13 @@ const LinkControlSearchInput = ( {
 
 	return (
 		<form onSubmit={ selectSuggestionOrCurrentInputValue }>
+			<div role="alert" aria-live="assertive">
+				{ errorMsg && (
+					<Notice className="block-editor-link-control__search-error" status="error" isDismissible={ false }>
+						{ errorMsg }
+					</Notice>
+				) }
+			</div>
 			<URLInput
 				className="block-editor-link-control__search-input"
 				value={ value }
