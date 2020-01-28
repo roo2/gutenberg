@@ -123,16 +123,17 @@ export const link = {
 						shortcutType="primary"
 						shortcutCharacter="k"
 					/> }
-					<InlineLinkUI
-						key={ isActive } // Make sure link UI state resets when switching between links.
-						addingLink={ this.state.addingLink }
-						stopAddingLink={ this.stopAddingLink }
-						isActive={ isActive }
-						activeAttributes={ activeAttributes }
-						value={ value }
-						onChange={ onChange }
-						onFocus={ onFocus }
-					/>
+					{ ( this.state.addingLink || isActive ) && (
+						<InlineLinkUI
+							addingLink={ this.state.addingLink }
+							stopAddingLink={ this.stopAddingLink }
+							isActive={ isActive }
+							activeAttributes={ activeAttributes }
+							value={ value }
+							onChange={ onChange }
+							onFocus={ onFocus }
+						/>
+					) }
 				</>
 			);
 		}
