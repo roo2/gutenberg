@@ -39,6 +39,8 @@ import { __ } from '@wordpress/i18n';
  */
 import BlockColorsStyleSelector from './block-colors-selector';
 
+const DEFAULT_AVATAR_SIZE = 24;
+
 function PostAuthorDisplay( { props, author, authors } ) {
 	const ref = useRef();
 
@@ -76,9 +78,9 @@ function PostAuthorDisplay( { props, author, authors } ) {
 		{ value: 96, label: __( 'Large' ) },
 	];
 
-	const changeAuthor = ( authorID ) => {
-		apiFetch( { path: '/wp/v2/users/' + authorID + '?context=edit' } ).then( ( newAuthor ) => {
-			editPost( { authorID } );
+	const changeAuthor = ( authorId ) => {
+		apiFetch( { path: '/wp/v2/users/' + authorId + '?context=edit' } ).then( ( newAuthor ) => {
+			editPost( { author: Number( authorId ) } );
 			props.setAttributes( {
 				id: newAuthor.id,
 				name: newAuthor.name,
@@ -250,7 +252,7 @@ function PostAuthorEdit( props ) {
 
 	const { setAttributes } = props;
 
-	let avatarSize = 24;
+	let avatarSize = DEFAULT_AVATAR_SIZE;
 	if ( !! props.attributes.avatarSize ) {
 		avatarSize = props.attributes.avatarSize;
 	}
