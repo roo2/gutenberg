@@ -1,6 +1,11 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+/**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useRef, useState } from '@wordpress/element';
 import { useEntityProp } from '@wordpress/core-data';
 import {
@@ -10,14 +15,23 @@ import {
 	RichText,
 	__experimentalUseColors,
 	withFontSizes,
+	__experimentalLinkControl as LinkControl,
 } from '@wordpress/block-editor';
 import {
+	KeyboardShortcuts,
 	Notice,
 	PanelBody,
+	Popover,
 	SelectControl,
 	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import {
+	rawShortcut,
+	displayShortcut,
+} from '@wordpress/keycodes';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -25,14 +39,13 @@ import { __ } from '@wordpress/i18n';
  */
 import BlockColorsStyleSelector from './block-colors-selector';
 
-function PostAuthorDisplay( { props, author } ) {
+function PostAuthorDisplay( { props, author, authors } ) {
 	const ref = useRef();
 
-	const [ showAvatar, setShowAvatar ] = useState( true );
-	const [ showDisplayName, setShowDisplayName ] = useState( true );
-	const [ avatarSize, setAvatarSize ] = useState( 24 );
+	const { editPost } = useDispatch( 'core/editor' );
+	const [ isLinkOpen, setIsLinkOpen ] = useState( false );
 
-	const { setAttributes, fontSize } = props;
+	const { fontSize } = props;
 
 	const {
 		TextColor,
@@ -54,19 +67,42 @@ function PostAuthorDisplay( { props, author } ) {
 		[ fontSize.size ]
 	);
 
-	setAttributes( {
-		author,
-	} );
+	const { id, firstName, lastName, name, showAvatar, showDisplayName } = props.attributes;
 
-	const hasFirstOrLastNameSet = !! author.firstName || !! author.lastName;
-	const authorName = showDisplayName && hasFirstOrLastNameSet ?
-		[ author.firstName, author.lastName ].join( ' ' ) :
-		author.name;
+	const hasFirstOrLastNameSet = !! firstName || !! lastName;
 	const avatarSizes = [
 		{ value: 24, label: __( 'Small' ) },
 		{ value: 48, label: __( 'Medium' ) },
 		{ value: 96, label: __( 'Large' ) },
 	];
+
+	const changeAuthor = ( authorID ) => {
+		apiFetch( { path: '/wp/v2/users/' + authorID + '?context=edit' } ).then( ( newAuthor ) => {
+			editPost( { authorID } );
+			props.setAttributes( {
+				id: newAuthor.id,
+				name: newAuthor.name,
+				firstName: newAuthor.firstName,
+				lastName: newAuthor.lastName,
+				avatarSize: props.attributes.avatarSize,
+				avatarUrl: newAuthor.avatar_urls[ props.attributes.avatarSize ],
+			} );
+		} );
+	};
+
+	const authorName = showDisplayName && hasFirstOrLastNameSet ?
+		[ firstName, lastName ].join( ' ' ) :
+		name;
+	props.setAttributes( {
+		postAuthorName: authorName,
+	} );
+
+	const blockClassNames = classnames( 'wp-block-post-author', {
+		[ fontSize.class ]: fontSize.class,
+	} );
+	const blockInlineStyles = {
+		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
+	};
 
 	return (
 		<>
@@ -80,18 +116,46 @@ function PostAuthorDisplay( { props, author } ) {
 					{ ColorPanel }
 
 				</BlockColorsStyleSelector>
+				<ToolbarGroup>
+					<KeyboardShortcuts
+						bindGlobal
+						shortcuts={ {
+							[ rawShortcut.primary( 'k' ) ]: () => setIsLinkOpen( true ),
+						} }
+					/>
+					<ToolbarButton
+						name="link"
+						icon="admin-links"
+						title={ __( 'Link' ) }
+						shortcut={ displayShortcut.primary( 'k' ) }
+						onClick={ () => setIsLinkOpen( ! isLinkOpen ) }
+					/>
+				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Author Settings' ) }>
+					<SelectControl
+						label={ __( 'Author' ) }
+						value={ id }
+						options={ authors.map( ( theAuthor ) => {
+							return {
+								value: theAuthor.id,
+								label: theAuthor.name,
+							};
+						} ) }
+						onChange={ ( authorID ) => {
+							changeAuthor( authorID );
+						} }
+					/>
 					<ToggleControl
 						label={ __( 'Show avatar' ) }
 						checked={ showAvatar }
-						onChange={ () => setShowAvatar( ! showAvatar ) }
+						onChange={ () => props.setAttributes( { showAvatar: ! showAvatar } ) }
 					/>
 					<ToggleControl
 						label={ __( 'Show display name' ) }
 						checked={ showDisplayName }
-						onChange={ () => setShowDisplayName( ! showDisplayName ) }
+						onChange={ () => props.setAttributes( { showDisplayName: ! showDisplayName } ) }
 					/>
 					{ showDisplayName && ! hasFirstOrLastNameSet &&
 						<Notice status="warning" isDismissible={ false }>
@@ -101,10 +165,13 @@ function PostAuthorDisplay( { props, author } ) {
 					<hr />
 					<SelectControl
 						label={ __( 'Avatar size' ) }
-						value={ avatarSize }
+						value={ props.attributes.avatarSize }
 						options={ avatarSizes }
 						onChange={ ( size ) => {
-							setAvatarSize( size );
+							props.setAttributes( {
+								avatarSize: size,
+								avatarUrl: author.avatar_urls[ size ],
+							} );
 						} }
 					/>
 				</PanelBody>
@@ -114,20 +181,44 @@ function PostAuthorDisplay( { props, author } ) {
 
 			<TextColor>
 				<BackgroundColor>
-					<div ref={ ref } className="wp-block-post-author">
+					<div
+						ref={ ref }
+						className={ blockClassNames }
+						style={ blockInlineStyles }
+					>
 						{ showAvatar &&
 							<img
-								width={ avatarSize }
-								src={ author.avatar_urls[ avatarSize ] }
-								alt={ authorName }
+								width={ props.attributes.avatarSize }
+								src={ props.attributes.avatarUrl }
+								alt={ props.attributes.postAuthorName }
 								className="wp-block-post-author__avatar"
 							/>
 						}
 						<RichText
 							className="wp-block-post-author__name"
 							multiline={ false }
-							value={ authorName }
+							withoutInteractiveFormatting
+							allowedFormats={ [
+								'core/bold',
+								'core/italic',
+								'core/strikethrough',
+							] }
+							value={ props.attributes.postAuthorName }
+							onChange={ () => {
+								setIsLinkOpen( true );
+							} }
 						/>
+						{ isLinkOpen && (
+							<Popover position="bottom center">
+								<LinkControl
+									className="wp-block-navigation-link__inline-link-input"
+									value={ '' }
+									showInitialSuggestions={ true }
+									onChange={ ( link ) => props.setAttributes( { link } ) }
+									onClose={ () => setIsLinkOpen( false ) }
+								/>
+							</Popover>
+						) }
 					</div>
 				</BackgroundColor>
 			</TextColor>
@@ -136,17 +227,43 @@ function PostAuthorDisplay( { props, author } ) {
 }
 
 function PostAuthorEdit( props ) {
-	const [ authorId ] = useEntityProp( 'postType', 'post', 'author' );
-	const author = useSelect(
-		( select ) => select( 'core' ).getEntityRecord( 'root', 'user', authorId ),
-		[ authorId ]
-	);
+	let [ authorId ] = useEntityProp( 'postType', 'post', 'author' );
+
+	if ( !! props.attributes.id ) {
+		authorId = props.attributes.id;
+	}
+
+	const { author, authors } = useSelect( ( select ) => {
+		const {
+			getEntityRecord,
+			getAuthors,
+		} = select( 'core' );
+		return {
+			author: getEntityRecord( 'root', 'user', authorId ),
+			authors: getAuthors(),
+		};
+	}, [ authorId ] );
 
 	if ( ! author ) {
 		return 'Post Author Placeholder';
 	}
 
-	return <PostAuthorDisplay props={ props } author={ author } />;
+	const { setAttributes } = props;
+
+	let avatarSize = 24;
+	if ( !! props.attributes.avatarSize ) {
+		avatarSize = props.attributes.avatarSize;
+	}
+	setAttributes( {
+		id: Number( author.id ),
+		name: author.name,
+		firstName: author.first_name,
+		lastName: author.last_name,
+		avatarSize,
+		avatarUrl: author.avatar_urls[ avatarSize ],
+	} );
+
+	return <PostAuthorDisplay props={ props } author={ author } authors={ authors } />;
 }
 
 export default withFontSizes( 'fontSize' )( PostAuthorEdit );
