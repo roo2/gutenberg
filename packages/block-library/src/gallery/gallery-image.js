@@ -13,6 +13,7 @@ import { BACKSPACE, DELETE } from '@wordpress/keycodes';
 import { withSelect } from '@wordpress/data';
 import { RichText } from '@wordpress/block-editor';
 import { isBlobURL } from '@wordpress/blob';
+import { close } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -153,7 +154,7 @@ class GalleryImage extends Component {
 				</div>
 				<div className="block-library-gallery-item__inline-menu">
 					<Button
-						icon="no-alt"
+						icon={ close }
 						onClick={ onRemove }
 						className="blocks-gallery-item__remove"
 						label={ __( 'Remove image' ) }

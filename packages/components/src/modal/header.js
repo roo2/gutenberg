@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -31,7 +32,7 @@ const ModalHeader = ( { icon, title, onClose, closeLabel, headingId, isDismissib
 			{ isDismissible &&
 				<Button
 					onClick={ onClose }
-					icon="no-alt"
+					icon={ close }
 					label={ label }
 				/>
 			}

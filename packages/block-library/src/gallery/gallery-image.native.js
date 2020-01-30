@@ -17,6 +17,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Caption, MediaUploadProgress } from '@wordpress/block-editor';
 import { isURL } from '@wordpress/url';
 import { withPreferredColorScheme } from '@wordpress/compose';
+import { close } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -169,13 +170,13 @@ class GalleryImage extends Component {
 		const shouldShowCaptionEditable = ! isUploadFailed && isSelected;
 		const shouldShowCaptionExpanded = ! isUploadFailed && ( ! isSelected && !! caption );
 
-		const captionContainerStyle = shouldShowCaptionExpanded ?
-			style.captionExpandedContainer :
-			style.captionContainer;
+		const captionContainerStyle = shouldShowCaptionExpanded
+			? style.captionExpandedContainer
+			: style.captionContainer;
 
-		const captionStyle = shouldShowCaptionExpanded ?
-			style.captionExpanded :
-			getStylesFromColorScheme( style.caption, style.captionDark );
+		const captionStyle = shouldShowCaptionExpanded
+			? style.captionExpanded
+			: getStylesFromColorScheme( style.caption, style.captionDark );
 
 		return (
 			<>
@@ -222,7 +223,7 @@ class GalleryImage extends Component {
 									</View>
 									<Button
 										style={ removeButtonStyle }
-										icon="no-alt"
+										icon={ close }
 										iconSize={ ICON_SIZE_REMOVE }
 										onClick={ onRemove }
 										accessibilityLabel={ __( 'Remove Image' ) }

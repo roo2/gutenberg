@@ -11,6 +11,7 @@ import { focus, getRectangleFromRange } from '@wordpress/dom';
 import { ESCAPE } from '@wordpress/keycodes';
 import deprecated from '@wordpress/deprecated';
 import { useViewportMatch } from '@wordpress/compose';
+import { close } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -513,7 +514,7 @@ const Popover = ( {
 								<span className="components-popover__header-title">
 									{ headerTitle }
 								</span>
-								<Button className="components-popover__close" icon="no-alt" onClick={ onClose } />
+								<Button className="components-popover__close" icon={ close } onClick={ onClose } />
 							</div>
 						) }
 						<div
