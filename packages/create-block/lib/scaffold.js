@@ -13,17 +13,10 @@ const initWPScripts = require( './init-wp-scripts' );
 const { code, clear, info, success } = require( './log' );
 const { hasWPScriptsEnabled, getOutputFiles } = require( './templates' );
 
-module.exports = async function( templateName, {
-	namespace,
-	slug,
-	title,
-	description,
-	dashicon,
-	category,
-	author,
-	license,
-	version,
-} ) {
+module.exports = async function(
+	templateName,
+	{ namespace, slug, title, description, dashicon, category, author, license, version }
+) {
 	clear();
 	info( `Creating a new WordPress block in "${ slug }" folder.` );
 
@@ -50,10 +43,7 @@ module.exports = async function( templateName, {
 			);
 			const filePath = `${ slug }/${ fileName.replace( /\$slug/g, slug ) }`;
 			await makeDir( dirname( filePath ) );
-			writeFile(
-				filePath,
-				render( template, view )
-			);
+			writeFile( filePath, render( template, view ) );
 		} )
 	);
 

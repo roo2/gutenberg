@@ -34,9 +34,7 @@ module.exports = async function( { author, license, slug, title, version } ) {
 
 	info( '' );
 	info( 'Installing packages. It might take a couple of minutes.' );
-	await install( [
-		'@wordpress/scripts',
-	], {
+	await install( [ '@wordpress/scripts' ], {
 		cwd,
 		dev: true,
 		prefer: 'npm',

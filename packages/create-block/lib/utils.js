@@ -1,5 +1,8 @@
 const startCase = ( input ) => {
-	return input.split( ' ' ).map( upperFirst ).join( ' ' );
+	return input
+		.split( ' ' )
+		.map( upperFirst )
+		.join( ' ' );
 };
 
 const upperFirst = ( input ) => {
