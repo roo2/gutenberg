@@ -1,3 +1,9 @@
+## Master
+
+### Breaking Changes
+
+- The default `URLInput` `autoFocus` prop value has changed from `true` to `false`. If you relied on the auto-focus behavior of the input, you must explicitly assign an `autoFocus={ true }` prop. Note that (in accordance with the purpose of this change) it is usually unadvisable to auto-focus an input. Refer to the [component README](https://github.com/WordPress/gutenberg/blob/master/packages/block-editor/src/components/url-input/README.md) for more information.
+
 ## 3.3.0 (2019-11-14)
 
 ### New Features

@@ -539,6 +539,11 @@ describe( 'Selecting links', () => {
 			const searchInput = container.querySelector( 'input[aria-label="URL"]' );
 			const form = container.querySelector( 'form' );
 
+			// Focus the input via DOM. The simulated events below don't operate
+			// on the DOM, but for LinkControl's focus preservation to work (and
+			// to verify it below), focus must be set in the real DOM.
+			searchInput.focus();
+
 			// Simulate searching for a term
 			act( () => {
 				Simulate.change( searchInput, { target: { value: searchTerm } } );
