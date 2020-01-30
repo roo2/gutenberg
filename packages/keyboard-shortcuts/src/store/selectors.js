@@ -48,9 +48,9 @@ function getKeyCombinationRepresentation( shortcut, representation ) {
 		return null;
 	}
 
-	return shortcut.modifier ?
-		FORMATTING_METHODS[ representation ][ shortcut.modifier ]( shortcut.character ) :
-		shortcut.character;
+	return shortcut.modifier
+		? FORMATTING_METHODS[ representation ][ shortcut.modifier ]( shortcut.character )
+		: shortcut.character;
 }
 
 /**
@@ -101,9 +101,9 @@ export function getShortcutDescription( state, name ) {
  * @return {WPShortcutKeyCombination[]} Key combinations.
  */
 export function getShortcutAliases( state, name ) {
-	return state[ name ] && state[ name ].aliases ?
-		state[ name ].aliases :
-		EMPTY_ARRAY;
+	return state[ name ] && state[ name ].aliases
+		? state[ name ].aliases
+		: EMPTY_ARRAY;
 }
 
 /**
@@ -126,4 +126,21 @@ export const getAllShortcutRawKeyCombinations = createSelector(
 		] );
 	},
 	( state, name ) => [ state[ name ] ]
+);
+
+/**
+ * Returns the shortcut names list for a give category name.
+ *
+ * @param {Object} state Global state.
+ * @param {string} name  Category name.
+ *
+ * @return {string[]} Shortcut names.
+ */
+export const getCategoryShortcuts = createSelector(
+	( state, categoryName ) => {
+		return Object.entries( state )
+			.filter( ( [ , shortcut ] ) => shortcut.category === categoryName )
+			.map( ( [ name ] ) => name );
+	},
+	( state ) => [ state ]
 );

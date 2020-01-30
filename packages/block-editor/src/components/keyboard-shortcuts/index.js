@@ -167,7 +167,7 @@ function KeyboardShortcutsRegister() {
 
 		registerShortcut( {
 			name: 'core/block-editor/unselect',
-			category: 'selections',
+			category: 'selection',
 			description: __( 'Clear selection.' ),
 			keyCombination: {
 				character: 'escape',
